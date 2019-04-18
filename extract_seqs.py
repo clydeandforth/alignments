@@ -19,7 +19,7 @@ with open(sys.argv[2], 'w') as t:
               					t.write(
 						">%s|%s %s \n%s\n" % (
                                     	 	feature.qualifiers['locus_tag'][0],
-					 	feature.qualifiers['product'][0],						  
+					 	feature.qualifiers['gene'][0],						  
 				 		rec.description,
 					 		#rec.name,
                       				feature.location.extract(rec).seq))
