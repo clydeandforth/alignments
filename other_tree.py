@@ -6,35 +6,51 @@ from Bio.Phylo.Consensus import bootstrap_trees, get_support
 from Bio.Phylo import draw
 from Bio import Phylo, AlignIO
 from Bio.Phylo.Consensus import *
+from Bio.Align.Applications import ClustalwCommandline
 import subprocess
 import matplotlib
 import matplotlib.pyplot as plt
 import pylab
 import sys
 
-alignment = AlignIO.read('gyrB.fa', 'fasta') # reading the alignment file
-msas = bootstrap(alignment, 100)
-calculator = DistanceCalculator('blosum62')
+font = {'family': 'serif',
+        'color':  'darkred',
+        'weight': 'normal',
+        'size': 16,
+        }
+
+plt.xlabel('Branch length', fontdict=font)
+plt.ylabel('Taxa', fontdict=font)
+
+cline = ClustalwCommandline("clustalw2", infile="outfile_padded.fasta")
+stdout = cline()
+
+alignment = AlignIO.read('outfile_padded.aln', 'clustal') # reading the alignment file
+
+
+
+#msas = bootstrap(alignment, 100)
+calculator = DistanceCalculator('ident')
 dm = calculator.get_distance(alignment) # distance matrix
 
-constructor = DistanceTreeConstructor(calculator)
+constructor = DistanceTreeConstructor()
 
-#tree = constructor.nj(dm) # build with neighbour joining algorithm a tree from dm
-tree = constructor.upgma(dm)
+tree = constructor.nj(dm) # build with neighbour joining algorithm a tree from dm
+#tree = constructor.upgma(dm)
 #tree = bootstrap_tree(msa, 50, constructor)
-trees = bootstrap_trees(dm, 100, constructor)
+#trees = bootstrap_trees(msas, 100, constructor)
+#next_point = trees()
 #tree.root_at_midpoint()
 
-consensus_tree = bootstrap_consensus(alignment, 100, constructor, majority_consensus)
-consensus_tree.ladderize()
-consensus_tree.root.color="green"
-mrca = consensus_tree.common_ancestor({"name": "PC_00004"}, {"name": "BG_I_00594"})
+#consensus_tree = bootstrap_consensus(trees, 100, constructor, majority_consensus)
+tree.ladderize()
+tree.root.color="green"
+#mrca = tree.common_ancestor({"name": "PC_00004"}, {"name": "BG_I_00594"})
+mrca = tree.common_ancestor({"name": "PC_00004|DNA"})
 mrca.color = "salmon"
 
-plt.xlabel("Branch length")
-plt.ylabel("Taxa")
 
-Phylo.write(consensus_tree,  'TreeToCutOff.xml', 'phyloxml')
+Phylo.write(tree,  'TreeToCutOff.xml', 'phyloxml')
 
 plt.rc('font', size=10)          # controls default text sizes #HERE IS THE SETTING FOR THAT ALLOWS ME TO HIDE THE BRANCH TIP LABELS
 plt.rc('axes', titlesize=14)     # fontsize of the axes title
@@ -47,7 +63,7 @@ plt.rc('axes', titlesize=14)     # fontsize of the axes title
 #plt.savefig("TreeToCutOff_check.svg", format='svg', dpi=1200, bbox_inches='tight')
 #pylab.savefig("phylo-dot.png")
 
-Phylo.draw(consensus_tree,  show_confidence=True)
+Phylo.draw(tree,  show_confidence=True)
 pylab.savefig("phylo-dot.png", dpi=300)
 #plt.show()
 #aln = AlignIO.read(open('gyrB.phy'), 'phylip')
