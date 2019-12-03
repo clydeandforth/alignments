@@ -3,13 +3,13 @@
 # Specify the file name to write stdout to; %J is replaced by the JOBID
 #SBATCH -o Tree_prep.o.%J
 #SBATCH -J Biopython
-#SBATCH --exclusive
+##SBATCH --exclusive
 #Specify the file name to write stderr to; %J is replaced by the JOBID
 #SBATCH -e Tree_prep.e.%J
-##SBATCH -t 2-60:00
+##SBATCH -t 0-08:00
 ##SBATCH -N 1
-##SBATCH --ntasks=40
-##SBATCH -p dev
+##SBATCH --ntasks=10
+#SBATCH -p dev
 
 res1=$(date +%s.%N)
 
@@ -17,8 +17,15 @@ module purge
 module load hpcw
 module load clustalw/2.1
 
-/scratch/b.bss81c/alignments/complete_script.py /scratch/b.bss81c/Prokka/concat_file.gbk outfile.fasta 'DNA gyrase subunit B'
+#conda activate ashconda
+#conda init ETE-toolkit
 
+/scratch/b.bss81c/alignments/multi_complete_script_for_nexus.py 
+#/scratch/b.bss81c/alignments/multi_complete_script_with_individual_gene_names.py
+/scratch/b.bss81c/alignments/Meld2Nexus/Meld2Nexus -c outfile_padded.nexus outfile_padded_2.nexus outfile_padded_3.nexus outfile_padded_4.nexus outfile_padded_5.nexus outfile_padded_6.nexus -o combined.nex
+#sed -i 's/datatype=rna/datatype=dna/' combined.nex
+#/scratch/b.bss81c/alignments/other_tree.py
+#/scratch/b.bss81c/alignments/ete_temp.py
 res2=$(date +%s.%N)
 dt=$(echo "$res2 - $res1" | bc)
 dd=$(echo "$dt/86400" | bc)
